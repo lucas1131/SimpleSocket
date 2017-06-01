@@ -1,5 +1,5 @@
 # Project name
-NAME=pressure-sensor
+NAME=fuel-sensor
 
 
 # Directories
@@ -105,6 +105,12 @@ else
 	mkdir $(NAME)/$(BLDDIR)
 	mkdir $(NAME)/$(OBJDIR)
 
+
+	# files for git to track
+	touch $(NAME)/$(SRCDIR)/.ignore
+	touch $(NAME)/$(OBJDIR)/.ignore
+	touch $(NAME)/$(BLDDIR)/.ignore
+	touch $(NAME)/$(INCDIR)/.ignore
 	cp Makefile $(NAME)
 
 	@echo Makefile rules > $(NAME)/README.md
