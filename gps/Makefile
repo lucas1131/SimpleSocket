@@ -1,5 +1,5 @@
 # Project name
-NAME=gps
+NAME=FreeGluteos3D
 
 
 # Directories
@@ -35,7 +35,7 @@ OBJ=$(OBJC) $(OBJCPP)
 CC=g++
 CFLAGS=-O3 -I./$(INCDIR) 
 
-USER_LIBS=
+USER_LIBS=-lGL -lglut -lGLU
 DEFAULT_LIBS=-lm
 LIBS=$(USER_LIBS) $(DEFAULT_LIBS)
 
@@ -45,7 +45,7 @@ ifdef debug
 	DEBUGGER=valgrind $(DBGFLAGS) 
 endif
 
-all: clean main
+all: checkdirs clean main
 
 # Compile directives
 $(OBJDIR)/%.o: $(SRCDIR)/%.c $(DEPS)
@@ -94,6 +94,15 @@ sense:
 	$(error Doesnt make sense)
 
 # Check if project has a name before creating it
+
+# Check for directory existence and create them if necessary
+checkdirs:
+	if [ ! -d $(BLDDIR)/ ]; then mkdir -p $(BLDDIR)/; fi
+	if [ ! -d $(INCDIR)/ ]; then mkdir -p $(INCDIR)/; fi
+	if [ ! -d $(LIBDIR)/ ]; then mkdir -p $(LIBDIR)/; fi
+	if [ ! -d $(SRCDIR)/ ]; then mkdir -p $(SRCDIR)/; fi
+	if [ ! -d $(OBJDIR)/ ]; then mkdir -p $(OBJDIR)/; fi
+
 create:
 ifeq ($(strip $(NAME)),)
 	$(error No project name provided (open this make and set NAME))
@@ -105,6 +114,7 @@ else
 	mkdir $(NAME)/$(BLDDIR)
 	mkdir $(NAME)/$(OBJDIR)
 
+	# files for git to track
 	cp Makefile $(NAME)
 
 	@echo Makefile rules > $(NAME)/README.md
