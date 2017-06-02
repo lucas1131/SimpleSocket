@@ -1,14 +1,32 @@
+/**
+	* Pressure sensor source file
+	
+	* Felipe Alegria Rollo Dias		- 9293501
+	* Giovanna Oliveira Guimarães	- 9293693
+	* Lucas Alexandre Soares		- 9293265
+	* Otavio Luiz Aguiar			- 9293518
+*/
+
 #include <stdio.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <string.h>
+#include <stdlib.h>
+
+#define BUFFERSIZE 1024
+#define PORT 8888
 
 int main(int argc, char const *argv[]) {
 	int clientSocket, nBytes;
-	char buffer[1024];
+	char *buffer, ipAddr[20];
 	struct sockaddr_in serverAddr;
 	socklen_t addr_size;
+
+	printf("Enter your IP address: ");
+	scanf("%s", ipAddr);
+
+	buffer = (char *) malloc(BUFFERSIZE * sizeof(char));
 
   	/* Create UDP socket */
   	/**
@@ -27,15 +45,16 @@ int main(int argc, char const *argv[]) {
 		* I don't know what sin_zero does. Fuck dat shit
 	*/
 	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_port = htons(7891);
-	inet_aton("127.0.0.1", &serverAddr.sin_addr);
+	serverAddr.sin_port = htons(PORT);
+	inet_aton(ipAddr, &serverAddr.sin_addr);
 	memset(serverAddr.sin_zero, '\0', sizeof serverAddr.sin_zero);
 
 	addr_size = sizeof serverAddr;
 
 	while(1){
 	    printf("Type something: ");
-	    fgets(buffer,1024,stdin);
+	    fflush(stdout);
+	    scanf(" %.*s", buffer);
 
 	    nBytes = strlen(buffer) + 1;
 	    
@@ -47,6 +66,8 @@ int main(int argc, char const *argv[]) {
 
 	    printf("Received from server: %s\n",buffer);
   	}
+
+  	free(buffer);
 	
 	return 0;
 }
