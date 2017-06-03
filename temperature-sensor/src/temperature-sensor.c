@@ -1,5 +1,5 @@
 /**
-	* Pressure sensor source file
+	* Temperature sensor source file
 	
 	* Felipe Alegria Rollo Dias		- 9293501
 	* Giovanna Oliveira Guimarães	- 9293693
@@ -71,7 +71,7 @@ int main(int argc, char const *argv[]) {
 	    if((sendto(clientSocket, buffer, nBytes, 0, (const struct sockaddr *)&serverAddr, addr_size) < 0))
 	    	die("Failed to send data", buffer, clientSocket);
 
-	    /*Receive message from server*/
+	    /* Receive message from server */
 	    if((nBytes = recvfrom(clientSocket,buffer,1024,0,NULL, NULL) < 0))
 	    	die("Failed to get data", buffer, clientSocket);
 
