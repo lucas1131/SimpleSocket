@@ -1,5 +1,5 @@
 # Project name
-NAME=FreeGluteos3D
+NAME=central-sensor
 
 
 # Directories
@@ -35,7 +35,7 @@ OBJ=$(OBJC) $(OBJCPP)
 CC=g++
 CFLAGS=-O3 -I./$(INCDIR) 
 
-USER_LIBS=-lGL -lglut -lGLU
+USER_LIBS=-pthread
 DEFAULT_LIBS=-lm
 LIBS=$(USER_LIBS) $(DEFAULT_LIBS)
 
