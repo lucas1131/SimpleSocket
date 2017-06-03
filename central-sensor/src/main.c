@@ -258,18 +258,35 @@ void *ListenLocalCommand(void *foo){
 	char *op = (char *) malloc(sizeof(char)*1024);
 
 	do{
-		scanf("%[^\n]s", op);
-		if(!strcmp(op, "show gps"))
-			printf("Altitude: %f\nLatitude: %f\nLongitude: %f");
-		else if(!strcmp(op, "show temperature"))
-			printf("");
-		else if(!strcmp(op, "show pressure"))
-			printf("");
-		else if(!strcmp(op, "show fuel"))
-			printf("");
-		else if(!strcmp(op, "show humidity"))
-			printf("");
-	} while(strcmp(op, "q"));
+		printf("Central Commands\n");
+		printf("\t1-List sensor values\n\t0-Exit\n");
+		//scanf("%[^\n]s", op);
+		scanf("%d", &option);
+		if(option == 1){
+			printf("Choose Sensor\n");
+			printf("\t1-Temperature\n\t2-Pressure\n\t3-Fuel\n\t4-Humidity\n\t5-Location\n\t6-Remaining Time\n\t7-Turbulance\n");
+			scanf("%d",&option);
+			switch(option){
+				case 1:printf("Temperature = %dC\n", temperature);
+				break;
+				case 2:printf("Pressure= %d\n", pressure);
+				break;
+				case 3:printf("Fuel = %dL\n", fuel);
+				break;
+				case 4:printf("Humidity = %d\n", humidity);
+				break;
+				case 5:printf("Altitude = \n", );
+				break;
+				case 6:printf("Remaining Time = %d\n", );
+				break;
+				case 7:
+					if(turbulence == true)printf("There is turbulance\n");
+					else printf("There is no turbulance\n");
+				break;
+			}
+			option = -1;
+		}
+	} while(option == 0);
 
 	return op;
 }
