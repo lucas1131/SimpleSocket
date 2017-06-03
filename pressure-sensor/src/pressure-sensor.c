@@ -8,14 +8,20 @@
 */
 
 #include <stdio.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
+#include <errno.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 
 #define BUFFERSIZE 1024
 #define PORT 8888
+#define PREFIX "PS"
+
+/* Display error and exit */
+void die(const char *, char *, int);
 
 int main(int argc, char const *argv[]) {
 	int clientSocket, nBytes;
@@ -35,7 +41,8 @@ int main(int argc, char const *argv[]) {
 		* of a fixed maximum length)
 		* IPPROTO_UDP: UDP protocol
   		*/
-	clientSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	if((clientSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
+		die("Failed to create socket", buffer, clientSocket);
 
 	/* Configure settings in address structc */
 	/**
@@ -51,18 +58,18 @@ int main(int argc, char const *argv[]) {
 
 	addr_size = sizeof serverAddr;
 
-	while(1){
-	    printf("Type something: ");
-	    fflush(stdout);
+	while(true) {
 	    scanf(" %.*s", buffer);
 
 	    nBytes = strlen(buffer) + 1;
 	    
 	    /* Send message to server */
-	    sendto(clientSocket, buffer, nBytes, 0, (const struct sockaddr *)&serverAddr, addr_size);
+	    if((sendto(clientSocket, buffer, nBytes, 0, (const struct sockaddr *)&serverAddr, addr_size) < 0))
+	    	die("Failed to send data", buffer, clientSocket);
 
 	    /*Receive message from server*/
-	    nBytes = recvfrom(clientSocket,buffer,1024,0,NULL, NULL);
+	    if((nBytes = recvfrom(clientSocket,buffer,1024,0,NULL, NULL) < 0))
+	    	die("Failed to get data", buffer, clientSocket);
 
 	    printf("Received from server: %s\n",buffer);
   	}
@@ -70,4 +77,13 @@ int main(int argc, char const *argv[]) {
   	free(buffer);
 	
 	return 0;
+}
+
+void die(const char *errorMsg, char *buffer, int clientSocket) {	
+	if(clientSocket != -1)
+		close(clientSocket);
+    
+    perror(errorMsg);
+    free(buffer);
+    exit(errno);
 }
