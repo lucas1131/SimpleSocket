@@ -1,5 +1,5 @@
 /**
-	* Temperature sensor source file
+	* Altitude/longitude/Latitude sensor source file
 	
 	* Felipe Alegria Rollo Dias		- 9293501
 	* Giovanna Oliveira Guimarães	- 9293693
@@ -24,7 +24,10 @@
 
 #define BUFFERSIZE 	1024
 #define PORT 		8888
-#define SUFIX 		"\\TS"
+#define ALT 		"\\GPSA"
+#define LON 		"\\GPSLO"
+#define LAT 		"\\GPSLA"
+
 #define usage() 	printf("\tUsage: temperature-sensor SERVER-IPV4\n");
 
 /* Display error and exit */
@@ -72,23 +75,56 @@ int main(int argc, char const *argv[]) {
 	addr_size = sizeof serverAddr;
 
 	while(true) {
+
+		// Send Altitude data
 		scanf(" %[^\n]s", buffer);
 
-	    /* TS + Message */
-	    strcat(buffer, SUFIX);
+	    /* PS + Message */
+	    strcat(buffer, ALT);
 
 	    nBytes = strlen(buffer) + 1;
 	    
 	    /* Send message to server */
-	    if( (sendto(clientSocket, buffer, nBytes, 0, 
+	    if( (sendto(clientSocket, buffer, nBytes, 0,
 	    	(const struct sockaddr *)&serverAddr, addr_size) < 0))
 	    	fprintf(stderr, "Failed to send data", buffer, clientSocket);
 
+	    // Send Longitude data
+	    usleep(50000);
+
+	    scanf(" %[^\n]s", buffer);
+
+	    /* PS + Message */
+	    strcat(buffer, LON);
+
+	    nBytes = strlen(buffer) + 1;
+	    
+	    /* Send message to server */
+	    if( (sendto(clientSocket, buffer, nBytes, 0,
+	    	(const struct sockaddr *)&serverAddr, addr_size) < 0))
+	    	fprintf(stderr, "Failed to send data", buffer, clientSocket);
+	    
+	    // Send Latitude data
+	    usleep(50000);
+
+	    scanf(" %[^\n]s", buffer);
+
+	    /* PS + Message */
+	    strcat(buffer, LAT);
+
+	    nBytes = strlen(buffer) + 1;
+	    
+	    /* Send message to server */
+	    if( (sendto(clientSocket, buffer, nBytes, 0,
+	    	(const struct sockaddr *)&serverAddr, addr_size) < 0))
+	    	fprintf(stderr, "Failed to send data", buffer, clientSocket);
+
+
 	    /* Receive message from server */
-	    // if((nBytes = recvfrom(clientSocket,buffer,1024,0,NULL, NULL) < 0))
+	    // if((nBytes = recvfrom(clientSocket, buffer, 1024, 0, NULL, NULL) < 0))
 	    // 	die("Failed to get data", buffer, clientSocket);
 
-	    // printf("Received from server: %s\n",buffer);
+	    // printf("Received from server: %s\n", buffer);
 	    usleep(500000);
   	}
 

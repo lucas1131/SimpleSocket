@@ -1,5 +1,5 @@
 # Project name
-NAME=central-sensor
+NAME=temperature-sensor
 
 
 # Directories
@@ -10,27 +10,33 @@ SRCDIR=src
 OBJDIR=$(SRCDIR)/obj
 
 
+# If the first argument is "run"
+ifeq (run, $(firstword $(MAKECMDGOALS)))
+  # use the rest as arguments for "run"
+  RUN_ARGS := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
+  # ...and turn them into do-nothing targets
+  $(eval $(RUN_ARGS):;@:)
+endif
+
+
 DEBUGGER=
 DBGFLAGS=-v --leak-check=full --show-leak-kinds=all --read-var-info=yes --track-origins=yes
 
 # Search for source files
 SRC=$(wildcard $(SRCDIR)/*.c) 
-SRC += $(wildcard $(SRCDIR)/*.cpp)
+SRCPP=$(wildcard $(SRCDIR)/*.cpp)
 
 # Search for header files
 DEPS=$(wildcard $(INCDIR)/*.h)
-DEPS += $(wildcard $(INCDIR)/*.hpp)
+DEPSPP=$(wildcard $(INCDIR)/*.hpp)
 
 # Generate .o object files rules
-# Find filter out .cpp from .c for correct capture
-_OBJC=$(foreach file, $(SRC), $(file:$(SRCDIR)/%.c=$(OBJDIR)/%.o))
-OBJC=$(filter-out %.cpp, $(_OBJC))
-# Find filter out .c from .cpp for correct capture
-_OBJCPP=$(foreach file, $(SRC), $(file:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o))
-OBJCPP=$(filter-out %.c, $(_OBJCPP))
-# Combine both C and C++ objects
-OBJ=$(OBJC) $(OBJCPP)
+OBJ=$(foreach file, $(SRC), $(file:$(SRCDIR)/%.c=$(OBJDIR)/%.o))
+OBJ += $(foreach file, $(SRCPP), $(file:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o))
 
+# Find renamed or removed .o files
+DEL_OBJ=$(wildcard $(OBJDIR)/*.o)
+DEL_OBJ=$(filter-out %.o, $(OBJC))
 
 CC=g++
 CFLAGS=-O3 -I./$(INCDIR) 
@@ -63,7 +69,7 @@ main: $(OBJ)
 
 # Run directives
 run:
-	$(DEBUGGER) ./$(BLDDIR)/$(NAME) 
+	$(DEBUGGER) ./$(BLDDIR)/$(NAME) $(RUN_ARGS)
 
 # Utility directives
 clean:
@@ -93,7 +99,8 @@ zip: clean cleanobj
 sense:
 	$(error Doesnt make sense)
 
-# Check if project has a name before creating it
+update:
+	@echo TODO...
 
 # Check for directory existence and create them if necessary
 checkdirs:
@@ -104,6 +111,7 @@ checkdirs:
 	if [ ! -d $(OBJDIR)/ ]; then mkdir -p $(OBJDIR)/; fi
 
 create:
+# Check if project has a name before creating it
 ifeq ($(strip $(NAME)),)
 	$(error No project name provided (open this make and set NAME))
 else
@@ -132,4 +140,3 @@ else
 	@echo "{use \'CFLAGS+=*flags*\' to add *flags*}" >> $(NAME)/README.md
 
 endif
- 

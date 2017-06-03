@@ -33,15 +33,16 @@
 #define BROADCAST_ADDR 	INADDR_BROADCAST
 
 
-void die(const char *s, char *data, );
+// void die(const char *s, char *data, );
+void die(const char *s);
 void ProcessData(char *data, int length);
-
-int main(int argc, char **argv){
 
 	int udp_socket = -1;			// Socket Descriptor
 	int terminal_thread = -1;		// Terminal thread descriptor
     pthread_t *thread;
 	char *data;						// Data buffer
+int main(int argc, char **argv){
+
     
     struct sockaddr_in socket_addr;	// Server
     struct sockaddr_in client_addr; // Clients
@@ -66,7 +67,7 @@ int main(int argc, char **argv){
         die("Failed to bind server socket");
     
     // Create a user interface in seperate 
-    thread_descriptor = pthread_create(thread, NULL, &ListenLocalCommand, NULL);
+    // thread_descriptor = pthread_create(thread, NULL, &ListenLocalCommand, NULL);
 
     // Keep listening for data forever
     while(true){
@@ -79,7 +80,7 @@ int main(int argc, char **argv){
         if( (data_length = recvfrom(udp_socket, data, BUFFSIZE, 
         							0, (struct sockaddr *) 
         							&client_addr, &client_size) ) < 0)
-            fprint(stderr, "Failed to get data");
+            fprintf(stderr, "Failed to get data");
          
         // Print sender IP:PORT and data
         printf("Received packet from %s:%d\n", 
@@ -115,18 +116,18 @@ void *ListenLocalCommand(void *foo){
 	char *op = (char *) malloc(sizeof(char)*1024);
 
 	do{
-		scanf("%[^\n]s", op)
-		if(!strcmp(op, "show GPS"))
-			printf("Altitude: %f\nLatitude: %f\nLongitude: %f", );
+		scanf("%[^\n]s", op);
+		if(!strcmp(op, "show gps"))
+			printf("Altitude: %f\nLatitude: %f\nLongitude: %f");
 		else if(!strcmp(op, "show temperature"))
 			printf("");
-		else if(!strcmp(op, "show GPS"))
+		else if(!strcmp(op, "show pressure"))
 			printf("");
-		else if(!strcmp(op, "show GPS"))
+		else if(!strcmp(op, "show fuel"))
 			printf("");
-		else if(!strcmp(op, "show GPS"))
+		else if(!strcmp(op, "show humidity"))
 			printf("");
 	} while(strcmp(op, "q"));
 
-	return "q";
+	return op;
 }

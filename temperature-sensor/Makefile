@@ -10,7 +10,7 @@ SRCDIR=src
 OBJDIR=$(SRCDIR)/obj
 
 
-# If the first argument is "run"...
+# If the first argument is "run"
 ifeq (run, $(firstword $(MAKECMDGOALS)))
   # use the rest as arguments for "run"
   RUN_ARGS := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
