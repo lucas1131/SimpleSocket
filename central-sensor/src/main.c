@@ -36,8 +36,11 @@ using namespace std;
 
 int fuel;
 int humidity;
+int last_humidity;
 double pressure;
+double last_pressure;
 double temperature;
+double last_temperature;
 int gpsa;
 double gpsla;
 double gpslo;
@@ -47,6 +50,8 @@ double rgpslo;
 double last_gpsla;
 double last_gpslo;
 double remaining_time;
+bool turbulence;
+string direction;
 
 // void die(const char *s, char *data, );
 void die(const char *s);
@@ -175,7 +180,38 @@ void ProcessData(char *data, int length) {
 
 void UpdateRemainingTime() {
 	double speed;
+	double distance;
 
+	//calculate speed (0.5s between data)
+	speed = sqrt(fabs(gpsla - last_gpsla)*fabs(gpsla - last_gpsla) + fabs(gpslo - last_gpslo)*fabs(gpslo - last_gpslo))/0.5;
+
+	//calculate distance to arrival
+	distance = sqrt(fabs(gpsla - rgpsla)*fabs(gpsla - rgpsla) + fabs(gpslo - rgpslo)*fabs(gpslo - rgpslo));
+
+	remaining_time = distance/speed;
+
+	last_gpsla = gpsla;
+	last_gpslo = gpslo;
+}
+
+void UpdateTurbulence() {
+	turbulence = false;
+
+	if (fabs(pressure - last_pressure) > 0.5)
+		turbulence = true;
+
+	if (fabs(temperature - last_temperature) > 5.0)
+		turbulence = true;
+
+	if (fabs(humidity - last_humidity) > 10)
+		turbulence = true;
+
+	last_pressure = pressure;
+	last_temperature = temperature;
+	last_humidity = humidity;
+}
+
+void UpdateDirection() {
 
 }
 
