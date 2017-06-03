@@ -1,5 +1,5 @@
 /**
-	* Pressure sensor source file
+	* Temperature sensor source file
 	
 	* Felipe Alegria Rollo Dias		- 9293501
 	* Giovanna Oliveira Guimarães	- 9293693
@@ -19,7 +19,7 @@
 
 #define BUFFERSIZE 1024
 #define PORT 8888
-#define SUFIX "\\PS"
+#define SUFIX "\\US"
 
 /* Display error and exit */
 void die(const char *, char *, int);
@@ -62,7 +62,7 @@ int main(int argc, char const *argv[]) {
 	while(true) {
 		scanf(" %[^\n]s", buffer);
 
-	    /* PS + Message */
+	    /* TS + Message */
 	    strcat(buffer, SUFIX);
 
 	    nBytes = strlen(buffer) + 1;
@@ -76,6 +76,7 @@ int main(int argc, char const *argv[]) {
 	    	die("Failed to get data", buffer, clientSocket);
 
 	    printf("Received from server: %s\n",buffer);
+	    sleep(1);
   	}
 
   	free(buffer);
