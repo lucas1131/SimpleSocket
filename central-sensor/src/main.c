@@ -53,14 +53,15 @@ double remaining_time;
 bool turbulence;
 string direction;
 
+int udp_socket = -1;			// Socket Descriptor
+int terminal_thread = -1;		// Terminal thread descriptor
+pthread_t *thread;
+char *data;						// Data buffer
+
 // void die(const char *s, char *data, );
 void die(const char *s);
 void ProcessData(char *data, int length);
 
-	int udp_socket = -1;			// Socket Descriptor
-	int terminal_thread = -1;		// Terminal thread descriptor
-    pthread_t *thread;
-	char *data;						// Data buffer
 int main(int argc, char **argv){
 
 
@@ -87,6 +88,7 @@ int main(int argc, char **argv){
         die("Failed to bind server socket");
 
     // Create a user interface in seperate
+    thread_descriptor = pthread_create(thread, NULL, &foo, NULL);
     // thread_descriptor = pthread_create(thread, NULL, &ListenLocalCommand, NULL);
 
     // Keep listening for data forever
@@ -122,6 +124,7 @@ void die(const char *s){
 	if(udp_socket != -1)
 		close(udp_socket);
 
+	pthread_kill(terminal_thread);
     perror(s);
     free(data);
     exit(errno);
@@ -213,6 +216,10 @@ void UpdateTurbulence() {
 
 void UpdateDirection() {
 
+}
+
+void *foo(void *bar){
+	while(true) int i = 0, printf("%d\n", i++), sleep(1);
 }
 
 void *ListenLocalCommand(void *foo){
