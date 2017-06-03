@@ -21,6 +21,8 @@
 #include <netinet/in.h>
 #include <netinet/udp.h>
 
+#include <pthread.h>
+
 #define IPV4	 	AF_INET
 #define DATAGRAM	SOCK_DGRAM
 #define PORT 		8888
@@ -30,20 +32,24 @@
 #define LOOPBACK_ADDR 	INADDR_LOOPBACK
 #define BROADCAST_ADDR 	INADDR_BROADCAST
 
-char *buffer;
-int udp_socket = -1;			// Socket Descriptor
 
-void die(const char *s);
+void die(const char *s, char *data, );
+void ProcessData(char *data, int length);
 
 int main(int argc, char **argv){
 
+	int udp_socket = -1;			// Socket Descriptor
+	int terminal_thread = -1;		// Terminal thread descriptor
+    pthread_t *thread;
+	char *data;						// Data buffer
+    
     struct sockaddr_in socket_addr;	// Server
     struct sockaddr_in client_addr; // Clients
     socklen_t client_size = sizeof(client_addr);
+    
     int data_length;
 
-	// Allocate global server buffer
-	buffer = (char *) malloc(sizeof(char)*BUFFSIZE);
+	data = (char *) malloc(sizeof(char)*BUFFSIZE);
 
 	if((udp_socket = socket(IPV4, DATAGRAM, 0)) < 0)
 		die("Failed to create socket");
@@ -58,29 +64,31 @@ int main(int argc, char **argv){
     // Bind server socket to port
     if(bind(udp_socket, (struct sockaddr *) &socket_addr, sizeof(socket_addr)) < 0)
         die("Failed to bind server socket");
-     
+    
+    // Create a user interface in seperate 
+    thread_descriptor = pthread_create(thread, NULL, &ListenLocalCommand, NULL);
+
     // Keep listening for data forever
     while(true){
      
         fflush(stdout); // Force flush from stdout internal buffering
         
+        // Clear data data before getting more
+        memset(data, 0, BUFFSIZE);
         // Get data - blocking call as scanf or getchar etc
-        if( (data_length = recvfrom(udp_socket, buffer, BUFFSIZE, 
+        if( (data_length = recvfrom(udp_socket, data, BUFFSIZE, 
         							0, (struct sockaddr *) 
         							&client_addr, &client_size) ) < 0)
-            die("Failed to get data");
+            fprint(stderr, "Failed to get data");
          
         // Print sender IP:PORT and data
         printf("Received packet from %s:%d\n", 
         	inet_ntoa(client_addr.sin_addr),
         	ntohs(client_addr.sin_port));
 
-        printf("Data: %s\n" , buffer);
+        printf("Data: %s\n" , data);
+        ProcessData(data, data_length);
          
-        // Now reply the client with the same data
-        if(sendto(udp_socket, buffer, data_length, 0, 
-        		(struct sockaddr*) &client_addr, client_size) < 0)
-            die("Failed to send data");
     }
  
     close(udp_socket);
@@ -94,6 +102,31 @@ void die(const char *s){
 		close(udp_socket);
     
     perror(s);
-    free(buffer);
+    free(data);
     exit(errno);
+}
+
+void ProcessData(char *data, int length){
+
+}
+
+void *ListenLocalCommand(void *foo){
+
+	char *op = (char *) malloc(sizeof(char)*1024);
+
+	do{
+		scanf("%[^\n]s", op)
+		if(!strcmp(op, "show GPS"))
+			printf("Altitude: %f\nLatitude: %f\nLongitude: %f", );
+		else if(!strcmp(op, "show temperature"))
+			printf("");
+		else if(!strcmp(op, "show GPS"))
+			printf("");
+		else if(!strcmp(op, "show GPS"))
+			printf("");
+		else if(!strcmp(op, "show GPS"))
+			printf("");
+	} while(strcmp(op, "q"));
+
+	return "q";
 }
