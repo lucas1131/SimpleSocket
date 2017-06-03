@@ -41,6 +41,12 @@ double temperature;
 int gpsa;
 double gpsla;
 double gpslo;
+int rgpsa;
+double rgpsla;
+double rgpslo;
+double last_gpsla;
+double last_gpslo;
+double remaining_time;
 
 // void die(const char *s, char *data, );
 void die(const char *s);
@@ -149,10 +155,26 @@ void ProcessData(char *data, int length) {
 		case 'P':
 			pressure = stod(sdata, NULL);
 			break;
+		case 'R':
+			pos += 4;
+			if (data[pos] == 'A')
+				rgpsa = stoi(sdata, NULL, 10);
+			else {
+				++pos;
+				if (data[pos] == 'A')
+					rgpsla = stod(sdata, NULL);
+				else
+					rgpslo = stod(sdata, NULL)
+			}
+			break;
 		case 'T':
 			temperature = stod(sdata, NULL);
 			break;
 	}
+}
+
+void UpdateRemainingTime() {
+	double speed;
 
 
 }
