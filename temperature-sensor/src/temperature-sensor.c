@@ -7,31 +7,43 @@
 	* Otavio Luiz Aguiar			- 9293518
 */
 
+// Std's
 #include <stdio.h>
-#include <errno.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
+#include <stdbool.h>
+
+// Errors
+#include <errno.h>
+
+// Networking
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <stdbool.h>
 
-#define BUFFERSIZE 1024
-#define PORT 8888
-#define SUFIX "\\TS"
+#define BUFFERSIZE 	1024
+#define PORT 		8888
+#define SUFIX 		"\\TS"
+#define usage() 	printf("\tUsage: temperature-sensor SERVER-IPV4\n");
 
 /* Display error and exit */
 void die(const char *, char *, int);
 
 int main(int argc, char const *argv[]) {
+
+	if(argc != 2){
+		usage();
+		exit(1);
+	}
+
 	int clientSocket, nBytes;
 	char *buffer, ipAddr[20];
 	struct sockaddr_in serverAddr;
 	socklen_t addr_size;
 
-	printf("Enter your IP address: ");
-	scanf("%s", ipAddr);
+	// printf("Enter your IP address: ");
+	// scanf("%s", ipAddr);
 
 	buffer = (char *) malloc(BUFFERSIZE * sizeof(char));
 
@@ -54,7 +66,7 @@ int main(int argc, char const *argv[]) {
 	*/
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons(PORT);
-	inet_aton(ipAddr, &serverAddr.sin_addr);
+	inet_aton(argv[1], &serverAddr.sin_addr);
 	memset(serverAddr.sin_zero, '\0', sizeof serverAddr.sin_zero);
 
 	addr_size = sizeof serverAddr;
@@ -68,21 +80,24 @@ int main(int argc, char const *argv[]) {
 	    nBytes = strlen(buffer) + 1;
 	    
 	    /* Send message to server */
-	    if((sendto(clientSocket, buffer, nBytes, 0, (const struct sockaddr *)&serverAddr, addr_size) < 0))
-	    	die("Failed to send data", buffer, clientSocket);
+	    if( (sendto(clientSocket, buffer, nBytes, 0, 
+	    	(const struct sockaddr *)&serverAddr, addr_size) < 0))
+	    	fprintf(stderr, "Failed to send data", buffer, clientSocket);
 
 	    /* Receive message from server */
-	    if((nBytes = recvfrom(clientSocket,buffer,1024,0,NULL, NULL) < 0))
-	    	die("Failed to get data", buffer, clientSocket);
+	    // if((nBytes = recvfrom(clientSocket,buffer,1024,0,NULL, NULL) < 0))
+	    // 	die("Failed to get data", buffer, clientSocket);
 
-	    printf("Received from server: %s\n",buffer);
-	    sleep(1);
+	    // printf("Received from server: %s\n",buffer);
+	    usleep(500000);
   	}
 
   	free(buffer);
 	
 	return 0;
 }
+
+
 
 void die(const char *errorMsg, char *buffer, int clientSocket) {	
 	if(clientSocket != -1)
