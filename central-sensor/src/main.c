@@ -264,24 +264,28 @@ void *ListenLocalCommand(void *foo){
 		scanf("%d", &option);
 		if(option == 1){
 			printf("Choose Sensor\n");
-			printf("\t1-Temperature\n\t2-Pressure\n\t3-Fuel\n\t4-Humidity\n\t5-Location\n\t6-Remaining Time\n\t7-Turbulance\n");
+			printf("\t1-Temperature\n\t2-Pressure\n\t3-Fuel\n\t4-Humidity\n\t5-Location\n\t6-Remaining Time\n\t7-Turbulance\n\t8-Direction\n\t9-Enough Fuel");
 			scanf("%d",&option);
 			switch(option){
-				case 1:printf("Temperature = %dC\n", temperature);
+				case 1:printf("Temperature = %lfC\n", temperature);
 				break;
-				case 2:printf("Pressure= %d\n", pressure);
+				case 2:printf("Pressure= %lf\n", pressure);
 				break;
 				case 3:printf("Fuel = %dL\n", fuel);
 				break;
 				case 4:printf("Humidity = %d\n", humidity);
 				break;
-				case 5:printf("Altitude = \n", );
+				case 5:printf("Altitude = %d\tLatitude = %lf\tLongitude = %lf\n", gpsa,gpsla,gpslo);
 				break;
-				case 6:printf("Remaining Time = %d\n", );
+				case 6:printf("Remaining Time = %lf\n", remaining_time);
 				break;
-				case 7:
-					if(turbulence == true)printf("There is turbulance\n");
+				case 7: 	if(turbulence == true)printf("There is turbulance\n");
 					else printf("There is no turbulance\n");
+				break;
+				case 8: printf("%s\n", direction);
+				break;
+				case 9: 	if(enough_fuel == true)printf("There is enough fuel\n");
+					else printf("There is no enough fuel\n");
 				break;
 			}
 			option = -1;
