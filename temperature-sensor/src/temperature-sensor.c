@@ -76,6 +76,7 @@ int main(int argc, char const *argv[]) {
 	    	die("Failed to get data", buffer, clientSocket);
 
 	    printf("Received from server: %s\n",buffer);
+	    sleep(1);
   	}
 
   	free(buffer);
