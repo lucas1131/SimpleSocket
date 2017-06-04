@@ -35,7 +35,7 @@
 #define BROADCAST_ADDR 	INADDR_BROADCAST
 
 using namespace std;
-
+bool thread_ended = false;
 int fuel;
 int humidity;
 int last_humidity;
@@ -52,6 +52,8 @@ double rgpslo;
 double last_gpsla;
 double last_gpslo;
 double remaining_time;
+double meter_p_degree_lat;
+double meter_p_degree_lon;
 bool turbulence;
 string direction;
 bool enough_fuel;
@@ -115,7 +117,7 @@ int main(int argc, char **argv){
 
         // printf("Data: %s\n" , data);
         ProcessData(data, data_length);
-
+        if(thread_ended) break;
     }
 
     close(udp_socket);
@@ -193,12 +195,12 @@ void UpdateRemainingTime() {
 	meter_p_degree_lat = 111132.954 - 559.822 * cos(2 * gpsla) + 1.175 * cos(4 * gpsla);
 	meter_p_degree_lon = 111132.954 * cos(gpslo);
 	//calculate speed (0.5s between data)
-	speed = sqrt(meter_p_degree_lat*fabs(gpsla - last_gpsla)*fabs(gpsla - last_gpsla) + eter_p_degree_lon*fabs(gpslo - last_gpslo)*fabs(gpslo - last_gpslo));
+	speed = sqrt(meter_p_degree_lat*fabs(gpsla - last_gpsla)*fabs(gpsla - last_gpsla) + meter_p_degree_lon*fabs(gpslo - last_gpslo)*fabs(gpslo - last_gpslo));
 	speed /= 1000;
 	speed /= 0.5;
 
 	//calculate distance to arrival
-	distance = sqrt(eter_p_degree_lat*fabs(gpsla - rgpsla)*fabs(gpsla - rgpsla) + eter_p_degree_lon*fabs(gpslo - rgpslo)*fabs(gpslo - rgpslo));
+	distance = sqrt(meter_p_degree_lat*fabs(gpsla - rgpsla)*fabs(gpsla - rgpsla) + meter_p_degree_lon*fabs(gpslo - rgpslo)*fabs(gpslo - rgpslo));
 	distance /= 1000;
 
 	remaining_time = distance/speed;
@@ -250,12 +252,17 @@ void UpdateDirection() {
 void UpdateEnoughFuel() {
 	enough_fuel = false;
 	double consumption = 8.09;
-
+	double distance;
 	//calculate distance to arrival
-	distance = sqrt(eter_p_degree_lat*fabs(gpsla - rgpsla)*fabs(gpsla - rgpsla) + eter_p_degree_lon*fabs(gpslo - rgpslo)*fabs(gpslo - rgpslo));
+	distance = sqrt(meter_p_degree_lat*
+					fabs(gpsla - rgpsla)*
+					fabs(gpsla - rgpsla) 
+					+ meter_p_degree_lon*
+					fabs(gpslo - rgpslo)*
+					fabs(gpslo - rgpslo));
 	distance /= 1000;
 
-	if (distance*consumption < fuel)
+	if((distance*consumption) < fuel)
 		enough_fuel = true;
 }
 
@@ -267,11 +274,11 @@ void *ListenLocalCommand(void *foo){
 		printf("Central Commands\n");
 		printf("\t1-List sensor values\n\t0-Exit\n");
 		//scanf("%[^\n]s", op);
-		scanf(" %d", &option);
+		scanf("%d", &option);
 		if(option == 1){
 			printf("Choose Sensor\n");
 			printf("\t1-Temperature\n\t2-Pressure\n\t3-Fuel\n\t4-Humidity\n\t5-Location\n\t6-Remaining Time\n\t7-Turbulance\n");
-			scanf(" %d",&option);
+			scanf("%d", &option);
 			switch(option){
 				case 1:printf("Temperature = %lfC\n", temperature);
 				break;
@@ -296,7 +303,7 @@ void *ListenLocalCommand(void *foo){
 			}
 			option = -1;
 		}
-	} while(option == 0);
-
+	} while(option != 0);
+	thread_ended = true;
 	return NULL;
 }
