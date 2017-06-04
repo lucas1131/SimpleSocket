@@ -11,6 +11,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <math.h>
+#include <string>
 
 // Errors
 #include <errno.h>
@@ -54,16 +56,19 @@ bool turbulence;
 string direction;
 
 int udp_socket = -1;			// Socket Descriptor
-int terminal_thread = -1;		// Terminal thread descriptor
-pthread_t *thread;
+int thread_descriptor = -1;		// Terminal thread descriptor
+pthread_t thread;
+pthread_attr_t attr;
 char *data;						// Data buffer
 
 // void die(const char *s, char *data, );
 void die(const char *s);
 void ProcessData(char *data, int length);
+void *ListenLocalCommand(void *foo);
 
 int main(int argc, char **argv){
 
+	(void) argc, (void) argv;
 
     struct sockaddr_in socket_addr;	// Server
     struct sockaddr_in client_addr; // Clients
@@ -88,7 +93,7 @@ int main(int argc, char **argv){
         die("Failed to bind server socket");
 
     // Create a user interface in seperate
-    thread_descriptor = pthread_create(thread, NULL, &foo, NULL);
+    thread_descriptor = pthread_create(&thread, &attr, &ListenLocalCommand, NULL);
     // thread_descriptor = pthread_create(thread, NULL, &ListenLocalCommand, NULL);
 
     // Keep listening for data forever
@@ -105,11 +110,9 @@ int main(int argc, char **argv){
             fprintf(stderr, "Failed to get data");
 
         // Print sender IP:PORT and data
-        printf("Received packet from %s:%d\n",
-        	inet_ntoa(client_addr.sin_addr),
-        	ntohs(client_addr.sin_port));
+        // printf("Received packet from %s:%d\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
 
-        printf("Data: %s\n" , data);
+        // printf("Data: %s\n" , data);
         ProcessData(data, data_length);
 
     }
@@ -124,7 +127,7 @@ void die(const char *s){
 	if(udp_socket != -1)
 		close(udp_socket);
 
-	pthread_kill(terminal_thread);
+	pthread_cancel(thread);
     perror(s);
     free(data);
     exit(errno);
@@ -154,7 +157,7 @@ void ProcessData(char *data, int length) {
 				if (data[pos] == 'A')
 					gpsla = stod(sdata, NULL);
 				else
-					gpslo = stod(sdata, NULL)
+					gpslo = stod(sdata, NULL);
 			}
 			break;
 		case 'H':
@@ -172,7 +175,7 @@ void ProcessData(char *data, int length) {
 				if (data[pos] == 'A')
 					rgpsla = stod(sdata, NULL);
 				else
-					rgpslo = stod(sdata, NULL)
+					rgpslo = stod(sdata, NULL);
 			}
 			break;
 		case 'T':
@@ -218,13 +221,9 @@ void UpdateDirection() {
 
 }
 
-void *foo(void *bar){
-	while(true) int i = 0, printf("%d\n", i++), sleep(1);
-}
-
 void *ListenLocalCommand(void *foo){
 
-	char *op = (char *) malloc(sizeof(char)*1024);
+	int option;
 
 	do{
 		printf("Central Commands\n");
@@ -236,17 +235,17 @@ void *ListenLocalCommand(void *foo){
 			printf("\t1-Temperature\n\t2-Pressure\n\t3-Fuel\n\t4-Humidity\n\t5-Location\n\t6-Remaining Time\n\t7-Turbulance\n");
 			scanf("%d",&option);
 			switch(option){
-				case 1:printf("Temperature = %dC\n", temperature);
+				case 1:printf("Temperature = %lfC\n", temperature);
 				break;
-				case 2:printf("Pressure= %d\n", pressure);
+				case 2:printf("Pressure= %lf\n", pressure);
 				break;
 				case 3:printf("Fuel = %dL\n", fuel);
 				break;
 				case 4:printf("Humidity = %d\n", humidity);
 				break;
-				case 5:printf("Altitude = \n", );
+				case 5:printf("Altitude = %lf\n", gpsla);
 				break;
-				case 6:printf("Remaining Time = %d\n", );
+				case 6:printf("Remaining Time = %lf\n", remaining_time);
 				break;
 				case 7:
 					if(turbulence == true)printf("There is turbulance\n");
@@ -257,5 +256,5 @@ void *ListenLocalCommand(void *foo){
 		}
 	} while(option == 0);
 
-	return op;
+	return NULL;
 }

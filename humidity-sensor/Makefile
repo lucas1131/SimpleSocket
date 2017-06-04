@@ -1,5 +1,5 @@
 # Project name
-NAME=temperature-sensor
+NAME=humidity-sensor
 
 
 # Directories

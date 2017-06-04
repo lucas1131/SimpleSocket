@@ -76,6 +76,7 @@ clean:
 	-rm -f $(BLDDIR)/*
 	-rm -f $(NAME).zip
 	-rm -f $(NAME).tar.gz
+	-rm -f vgcore*
 	clear
 	clear
 

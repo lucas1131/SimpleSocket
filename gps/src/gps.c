@@ -28,7 +28,7 @@
 #define LON 		"\\GPSLO"
 #define LAT 		"\\GPSLA"
 
-#define usage() 	printf("\tUsage: temperature-sensor SERVER-IPV4\n");
+#define usage() 	printf("\tUsage: gps SERVER-IPV4\n");
 
 /* Display error and exit */
 void die(const char *, char *, int);

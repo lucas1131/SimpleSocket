@@ -25,7 +25,7 @@
 #define BUFFERSIZE 	1024
 #define PORT 		8888
 #define SUFIX 		"\\HS"
-#define usage() 	printf("\tUsage: temperature-sensor SERVER-IPV4\n");
+#define usage() 	printf("\tUsage: temperature-senso rSERVER-IPV4\n");
 
 /* Display error and exit */
 void die(const char *, char *, int);
