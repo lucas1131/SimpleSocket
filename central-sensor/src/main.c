@@ -54,6 +54,7 @@ double last_gpslo;
 double remaining_time;
 bool turbulence;
 string direction;
+bool enough_fuel;
 
 int udp_socket = -1;			// Socket Descriptor
 int thread_descriptor = -1;		// Terminal thread descriptor
@@ -188,16 +189,19 @@ void UpdateRemainingTime() {
 	double speed;
 	double distance;
 
+	//length in meters of a degree
+	meter_p_degree_lat = 111132.954 - 559.822 * cos(2 * gpsla) + 1.175 * cos(4 * gpsla);
+	meter_p_degree_lon = 111132.954 * cos(gpslo);
 	//calculate speed (0.5s between data)
-	speed = sqrt(fabs(gpsla - last_gpsla)*fabs(gpsla - last_gpsla) + fabs(gpslo - last_gpslo)*fabs(gpslo - last_gpslo))/0.5;
+	speed = sqrt(meter_p_degree_lat*fabs(gpsla - last_gpsla)*fabs(gpsla - last_gpsla) + eter_p_degree_lon*fabs(gpslo - last_gpslo)*fabs(gpslo - last_gpslo));
+	speed /= 1000;
+	speed /= 0.5;
 
 	//calculate distance to arrival
-	distance = sqrt(fabs(gpsla - rgpsla)*fabs(gpsla - rgpsla) + fabs(gpslo - rgpslo)*fabs(gpslo - rgpslo));
+	distance = sqrt(eter_p_degree_lat*fabs(gpsla - rgpsla)*fabs(gpsla - rgpsla) + eter_p_degree_lon*fabs(gpslo - rgpslo)*fabs(gpslo - rgpslo));
+	distance /= 1000;
 
 	remaining_time = distance/speed;
-
-	last_gpsla = gpsla;
-	last_gpslo = gpslo;
 }
 
 void UpdateTurbulence() {
@@ -218,7 +222,41 @@ void UpdateTurbulence() {
 }
 
 void UpdateDirection() {
+	bool up = false;
+	bool right = false;
 
+	if (gpsla - last_gpsla > 0)
+		up = true;
+
+	if (gpslo - last_gpslo > 0)
+		right = true;
+
+	if (up) {
+		if (right)
+			direction = "North East";
+		else
+			direction = "North West";
+	} else {
+		if (right)
+			direction = "South East";
+		else
+			direction = "South West";
+	}
+
+	last_gpsla = gpsla;
+	last_gpslo = gpslo;
+}
+
+void UpdateEnoughFuel() {
+	enough_fuel = false;
+	double consumption = 8.09;
+
+	//calculate distance to arrival
+	distance = sqrt(eter_p_degree_lat*fabs(gpsla - rgpsla)*fabs(gpsla - rgpsla) + eter_p_degree_lon*fabs(gpslo - rgpslo)*fabs(gpslo - rgpslo));
+	distance /= 1000;
+
+	if (distance*consumption < fuel)
+		enough_fuel = true;
 }
 
 void *ListenLocalCommand(void *foo){
@@ -243,13 +281,17 @@ void *ListenLocalCommand(void *foo){
 				break;
 				case 4:printf("Humidity = %d\n", humidity);
 				break;
-				case 5:printf("Altitude = %lf\n", gpsla);
+				case 5:printf("Altitude = %d\tLatitude = %lf\tLongitude = %lf\n", gpsa,gpsla,gpslo);
 				break;
 				case 6:printf("Remaining Time = %lf\n", remaining_time);
 				break;
-				case 7:
-					if(turbulence == true)printf("There is turbulance\n");
+				case 7: 	if(turbulence == true)printf("There is turbulance\n");
 					else printf("There is no turbulance\n");
+				break;
+				case 8: printf("%s\n", direction);
+				break;
+				case 9: 	if(enough_fuel == true)printf("There is enough fuel\n");
+					else printf("There is no enough fuel\n");
 				break;
 			}
 			option = -1;
