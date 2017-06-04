@@ -277,7 +277,7 @@ void *ListenLocalCommand(void *foo){
 		scanf("%d", &option);
 		if(option == 1){
 			printf("Choose Sensor\n");
-			printf("\t1-Temperature\n\t2-Pressure\n\t3-Fuel\n\t4-Humidity\n\t5-Location\n\t6-Remaining Time\n\t7-Turbulance\n");
+			printf("\t1-Temperature\n\t2-Pressure\n\t3-Fuel\n\t4-Humidity\n\t5-Location\n\t6-Remaining Time\n\t7-Turbulance\n\t8-Direction\n\t9-Enough Fuel\n");
 			scanf("%d", &option);
 			switch(option){
 				case 1:printf("Temperature = %lfC\n", temperature);
