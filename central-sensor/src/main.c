@@ -7,6 +7,7 @@
 */
 
 // Std's
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,6 +36,7 @@
 #define BROADCAST_ADDR 	INADDR_BROADCAST
 
 using namespace std;
+
 bool thread_ended = false;
 int fuel;
 int humidity;
@@ -55,7 +57,7 @@ double remaining_time;
 double meter_p_degree_lat;
 double meter_p_degree_lon;
 bool turbulence;
-string direction;
+string direction = "";
 bool enough_fuel;
 
 int udp_socket = -1;			// Socket Descriptor
@@ -277,7 +279,7 @@ void *ListenLocalCommand(void *foo){
 		scanf("%d", &option);
 		if(option == 1){
 			printf("Choose Sensor\n");
-			printf("\t1-Temperature\n\t2-Pressure\n\t3-Fuel\n\t4-Humidity\n\t5-Location\n\t6-Remaining Time\n\t7-Turbulance\n");
+			printf("\t1-Temperature\n\t2-Pressure\n\t3-Fuel\n\t4-Humidity\n\t5-Location\n\t6-Remaining Time\n\t7-Turbulance\n\t8-Direction\n\t9-Enough Fuel\n");
 			scanf("%d", &option);
 			switch(option){
 				case 1:printf("Temperature = %lfC\n", temperature);
@@ -292,12 +294,14 @@ void *ListenLocalCommand(void *foo){
 				break;
 				case 6:printf("Remaining Time = %lf\n", remaining_time);
 				break;
-				case 7: 	if(turbulence == true)printf("There is turbulance\n");
+				case 7:
+					if(turbulence == true)printf("There is turbulance\n");
 					else printf("There is no turbulance\n");
 				break;
-				case 8: printf("%s\n", direction);
+				case 8: cout << direction << endl;
 				break;
-				case 9: 	if(enough_fuel == true)printf("There is enough fuel\n");
+				case 9:
+					if(enough_fuel == true)printf("There is enough fuel\n");
 					else printf("There is no enough fuel\n");
 				break;
 			}
